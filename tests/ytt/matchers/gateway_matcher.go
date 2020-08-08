@@ -5,7 +5,7 @@ import (
 
 	"github.com/onsi/gomega/format"
 	"github.com/onsi/gomega/types"
-	networkingv1beta1 "istio.io/client-go/pkg/apis/networking/v1beta1"
+	networkingv1alpha3 "istio.io/client-go/pkg/apis/networking/v1alpha3"
 )
 
 type WithGatewayMatcher struct {
@@ -34,15 +34,16 @@ func (matcher *WithGatewayMatcher) Match(actual interface{}) (bool, error) {
 		return false, nil
 	}
 
-	typedGateway, _ := gateway.(*networkingv1beta1.Gateway)
-	fmt.Printf("Gateway: %v", typedGateway)
-	// for _, meta := range matcher.metas {
-	// 	ok, err := meta.Match(typedGateway.ObjectMeta)
-	// 	if !ok || err != nil {
-	// 		matcher.failedMatcher = meta
-	// 		return ok, err
-	// 	}
-	// }
+	fmt.Printf("YAML: %v", gateway)
+
+	typedGateway, _ := gateway.(*networkingv1alpha3.Gateway)
+	for _, meta := range matcher.metas {
+		ok, err := meta.Match(typedGateway.ObjectMeta)
+		if !ok || err != nil {
+			matcher.failedMatcher = meta
+			return ok, err
+		}
+	}
 	return true, nil
 }
 
