@@ -2,10 +2,12 @@ package matchers
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/onsi/gomega/format"
 	"github.com/onsi/gomega/types"
 	networkingv1alpha3 "istio.io/client-go/pkg/apis/networking/v1alpha3"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type WithGatewayMatcher struct {
@@ -34,8 +36,9 @@ func (matcher *WithGatewayMatcher) Match(actual interface{}) (bool, error) {
 		return false, nil
 	}
 
-	fmt.Printf("YAML: %v", gateway)
-
+	apiVersion := reflect.ValueOf(gateway).Elem().FieldByName("TypeMeta").Interface().(v1.TypeMeta).APIVersion
+	fmt.Printf("The kind of this is:  %s", apiVersion)
+	
 	typedGateway, _ := gateway.(*networkingv1alpha3.Gateway)
 	for _, meta := range matcher.metas {
 		ok, err := meta.Match(typedGateway.ObjectMeta)
